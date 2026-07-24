@@ -1,5 +1,5 @@
 # Datos: NO versionar el dataset (pesado + confidencialidad clinica)
-data/
+data/*
 !data/.gitkeep
 *.npy
 *.c3d

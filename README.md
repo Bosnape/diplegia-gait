@@ -2,7 +2,7 @@
 
 Replicación de *Ferrari et al. (2019), "Gait-Based Diplegia Classification Using LSTM Networks"* (J. Healthcare Engineering) a partir del dataset crudo de marcha (marcadores VICON, formato `.npy`).
 
-## Estado del dato
+## El dataset crudo
 
 Los `.npy` **no** están en el repo original ni en este: se descargan del Google Drive enlazado en el [repo del dataset](https://github.com/lucabergamini/gait-analysis-dataset). Cada `.npy` es **un trial** con forma `(n_frames, 19, 4)`:
 
