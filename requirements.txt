@@ -1,0 +1,11 @@
+numpy
+pandas
+matplotlib
+scipy
+scikit-learn
+jupyter
+tqdm
+torch
+
+# Visualizacion 3D opcional (visualizer.py del repo original)
+# open3d

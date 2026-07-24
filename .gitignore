@@ -1,0 +1,23 @@
+# Datos: NO versionar el dataset (pesado + confidencialidad clinica)
+data/
+!data/.gitkeep
+*.npy
+*.c3d
+
+# Notebooks: limpiar outputs antes de commitear (ver README)
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Ambiente de trabajo
+CLAUDE.md
