@@ -2,4 +2,4 @@ Este archivo solo existe para que git trackee la carpeta data/ (git no versiona 
 
 El dataset real (.npy) no va en git: se descarga del Google Drive enlazado en
 https://github.com/lucabergamini/gait-analysis-dataset y se descomprime aca,
-en data/diplegia/\<clase>/\<sujeto>/\<trial>.npy (ver README.md).
+en data/diplegia/<clase>/<sujeto>/<trial>.npy (ver README.md).
