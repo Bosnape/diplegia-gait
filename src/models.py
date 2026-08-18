@@ -128,7 +128,7 @@ class DiplegiaMLP(_BaseModel):
         return self.net(x)
 
 
-class DiplegiaLSTM(nn.Module):
+class DiplegiaLSTM(_BaseModel):
     """
     Red Recurrente LSTM según Fig. 2 del paper (Ferrari et al. 2019).
 
@@ -167,7 +167,7 @@ def evaluate_patient_level(
     X_test: np.ndarray,
     y_test: np.ndarray,
     subj_test: np.ndarray,
-    device: torch.device = torch.device('cpu'),
+    device: torch.device = None,
 ) -> dict:
     """
     Evalúa la precisión del modelo nivel Paciente (Top-1 y Top-2), como en Tabla 7.
@@ -180,6 +180,7 @@ def evaluate_patient_level(
     Returns:
         Diccionario con métricas generales y por forma, más la matriz de confusión.
     """
+    device = device or torch.device('cpu')
     model.eval()
     with torch.no_grad():
         inputs = torch.tensor(X_test, dtype=torch.float32).to(device)
@@ -198,6 +199,39 @@ def evaluate_probs_patient_level(
     Evalúa matrices de probabilidad (N, 4) obtenidas por cualquier clasificador (Sklearn, PyTorch, etc).
     """
     return _aggregate_patient_probs(probs, y_test, subj_test)
+
+
+def evaluate_epoch(
+    model: nn.Module,
+    X: np.ndarray,
+    y: np.ndarray,
+    subj: np.ndarray,
+    criterion: nn.Module,
+    device: torch.device = None,
+) -> dict:
+    """
+    Evalúa el modelo en modo eval sobre (X, y, subj), devolviendo loss y
+    accuracy a nivel secuencia junto con la agregación a nivel paciente
+    (reutiliza _aggregate_patient_probs). Pensada para llamarse una vez por
+    época dentro del loop de entrenamiento, sin repetir el forward pass ni
+    duplicar la lógica de agregación por paciente.
+
+    Returns:
+        dict con 'loss' (float), 'seq_acc' (float) y 'patient' (dict, el
+        mismo formato que devuelve evaluate_patient_level).
+    """
+    device = device or torch.device('cpu')
+    model.eval()
+    with torch.no_grad():
+        inputs = torch.tensor(X, dtype=torch.float32).to(device)
+        targets = torch.tensor(y, dtype=torch.long).to(device)
+        logits = model(inputs)
+        loss = criterion(logits, targets).item()
+        seq_acc = (logits.argmax(dim=-1) == targets).float().mean().item()
+        probs = torch.softmax(logits, dim=-1).cpu().numpy()
+
+    patient = _aggregate_patient_probs(probs, y, subj)
+    return {'loss': loss, 'seq_acc': seq_acc, 'patient': patient}
 
 
 def _aggregate_patient_probs(

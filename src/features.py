@@ -302,6 +302,32 @@ def compute_projected_angles(xyz: np.ndarray) -> np.ndarray:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Relleno de NaN residual (bordes con validez dispareja entre marcadores)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _fill_nan_columns(angles_81: np.ndarray) -> np.ndarray:
+    """
+    Reemplaza NaN por el promedio de cada columna (ángulo).
+
+    `segment_trial` recorta el trial usando los foot-strikes de los talones
+    (RCA/LCA), pero no garantiza que el resto de los marcadores sean válidos
+    en todo ese rango: un marcador con un borde inválido más largo que el de
+    los talones deja NaN dentro de la región recortada. Tanto la FFT (Task 4a)
+    como las secuencias del LSTM (Task 4b) necesitan un array sin NaN.
+    """
+    angles_filled = angles_81.copy()
+    for col in range(angles_filled.shape[1]):
+        col_data = angles_filled[:, col]
+        nan_mask = np.isnan(col_data)
+        if nan_mask.any() and not nan_mask.all():
+            col_mean = np.nanmean(col_data)
+            angles_filled[nan_mask, col] = col_mean
+        elif nan_mask.all():
+            angles_filled[:, col] = 0.0
+    return angles_filled
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Task 4a: FFT → vector de features para MLP (1620-D)
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -336,16 +362,7 @@ def compute_mlp_features(
     Returns:
         Vector 1-D de (n_coeff × 81,) = (1620,) features.
     """
-    # Reemplazar NaN por el valor medio de la columna para que la FFT funcione
-    angles_filled = angles_81.copy()
-    for col in range(angles_filled.shape[1]):
-        col_data = angles_filled[:, col]
-        nan_mask = np.isnan(col_data)
-        if nan_mask.any() and not nan_mask.all():
-            col_mean = np.nanmean(col_data)
-            angles_filled[nan_mask, col] = col_mean
-        elif nan_mask.all():
-            angles_filled[:, col] = 0.0
+    angles_filled = _fill_nan_columns(angles_81)
 
     # Aplicar FFT a lo largo del eje temporal para cada uno de los 81 ángulos
     # fft_out shape: (num_freq_bins, 81), valores complejos
@@ -409,10 +426,12 @@ def compute_lstm_sequences(
     if n_frames < window:
         return None
 
+    angles_filled = _fill_nan_columns(angles_81)
+
     sequences = []
     start = 0
     while start + window <= n_frames and len(sequences) < max_seq:
-        seq = angles_81[start : start + window, :]    # (75, 81)
+        seq = angles_filled[start : start + window, :]    # (75, 81)
         sequences.append(seq)
         start += stride
 
