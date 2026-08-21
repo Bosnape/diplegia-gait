@@ -25,25 +25,14 @@ pip install -r requirements.txt
 ```
 diplegia-gait/
 ├── src/                 # Código compartido, importado por los notebooks
-│   ├── data.py          # Carga .npy, parseo de path, máscaras de validez
+│   ├── data.py          # Carga .npy, máscaras de validez, análisis de huecos e interpolación
 │   ├── angles.py        # Los 27 ángulos de la Tabla 5 del paper
-│   ├── features.py      # Segmentación de pasos + FFT (etapa B)
-│   └── models.py        # MLP y LSTM (etapa C)
+│   ├── features.py      # Segmentación de pasos, ángulos proyectados, features MLP (FFT) y LSTM (secuencias)
+│   └── models.py        # MLP y LSTM en PyTorch, split patient-wise, evaluación por paciente
 ├── notebooks/           # Un notebook por etapa. Importan de src/, no duplican lógica
 │   ├── 01_eda.ipynb        # Exploración y limpieza
-│   ├── 02_features.ipynb   # Ángulos + FFT
-│   ├── 03_mlp.ipynb        # Entrenamiento MLP
-│   └── 04_lstm.ipynb       # Entrenamiento LSTM
-└── data/                # Ignorado por git
+│   ├── 02_features.ipynb   # Ángulos + FFT + secuencias, guarda data/features/*.npz
+│   ├── 03_mlp_demo.ipynb   # Entrenamiento y evaluación del MLP
+│   └── 04_lstm.ipynb       # Entrenamiento y evaluación del LSTM
+└── data/                # Ignorado por git (dataset y data/features/*.npz se generan localmente)
 ```
-
-## Reparto de tareas sugerido
-
-| Etapa | Entregable | Depende de |
-|---|---|---|
-| **A. EDA + limpieza** | `01_eda.ipynb`, criterio de trials válidos en `data.py` | — |
-| **B. Features** | `features.py` (pasos + FFT, 20 coefs) + `02_features.ipynb` | A |
-| **C. Modelos** | `models.py` (MLP, LSTM) + `03/04_*.ipynb`, split patient-wise | B |
-| **D. Evaluación** | matrices de confusión, top-1/top-2 vs Tabla 7–8 | C |
-
-A y B son el camino crítico y son separables limpiamente entre dos personas (uno afina limpieza + segmentación de pasos, otro monta el pipeline de FFT/features y el esqueleto de modelos).
