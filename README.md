@@ -34,5 +34,11 @@ diplegia-gait/
 │   ├── 02_features.ipynb   # Ángulos + FFT + secuencias, guarda data/features/*.npz
 │   ├── 03_mlp_demo.ipynb   # Entrenamiento y evaluación del MLP
 │   └── 04_lstm.ipynb       # Entrenamiento y evaluación del LSTM
+├── docs/                # Informe de resultados y presentación de la replicación (PDF)
 └── data/                # Ignorado por git (dataset y data/features/*.npz se generan localmente)
 ```
+
+## Documentos
+
+- [Informe de resultados](docs/Informe_de_Resultados.pdf): resultados de la replicación frente a las Tablas 3, 7 y 8 del paper.
+- [Presentación de la replicación](docs/Presentacion_Replicacion_Paper.pdf): diapositivas del proyecto.

@@ -3,6 +3,7 @@ data/*
 !data/.gitkeep
 *.npy
 *.c3d
+Paper.pdf
 
 # Notebooks: limpiar outputs antes de commitear (ver README)
 .ipynb_checkpoints/
